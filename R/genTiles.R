@@ -5,7 +5,7 @@
 #' @param maxZ mximum zoom level to generate
 #' @param w width of tiles in pixels
 #' @param h height of tiles in pixels
-#' @param mapCRS CRS (as a string) for the generated tiles
+#' @param maxMemory sets maxmemory as defined in \code{rasterOptions}
 ##
 #' @details This is naive implimtnation. It scales or reprojects raster so dimensions are
 #' (2^maxZ)*w and (2^maxZ)*h.
@@ -13,19 +13,24 @@
 #' Defaults work well for plotting 0.1 degree data in a limited number of tiles
 #' 
 #' @export
-genTiles <- function(rst,pal,outdir=".",maxZ=3,w=445,h=223,mapCRS="EPSG:4326"){
+genTiles <- function(rst,pal,outdir=".",maxZ=3,w=512,h=512,maxMemory=5e9){
 
-   
+    raster::rasterOptions(maxmemory= maxMemory)#0.6
+    
     ## work out the dimension of the projected raster
     nr <- (2^maxZ)*h
     nc <- (2^maxZ)*w
 
     ## reproject p into format for tiles
-    nr <- raster::raster(raster::extent(c(-180,180,-90,90)),nrows=nr,ncol=nc,crs=raster::crs(mapCRS))
-    if( raster::compareCRS(raster::crs(rst),raster::crs(nr)) ){
-        p <- raster::resample(rst,nr)
+    p <- raster::raster(nrows=nr,ncol=nc,
+                        xmn=-20037508,xmx=20037508,
+                        ymn=-20037508,ymx=20037508,
+                        crs=raster::crs("EPSG:3857"))
+    
+    if( raster::compareCRS(raster::crs(rst),raster::crs(p)) ){
+        p <- raster::resample(rst,p)
     }else{
-        p <- raster::projectRaster(rst,nr)
+        p <- raster::projectRaster(rst,p)
     }
     
     ## unpack the colour palette
@@ -44,16 +49,21 @@ genTiles <- function(rst,pal,outdir=".",maxZ=3,w=445,h=223,mapCRS="EPSG:4326"){
             pp <- p
         }
 
-        pi <- raster::as.matrix(raster::cut(pp,brk))
-        png <- array(pal[pi,],c(dim(pp)[1:2],4))
+        pp <- raster::cut(pp,brk)
+        ##pi <- raster::as.matrix(raster::cut(pp,brk))
+        ##png <- array(pal[pi,],c(dim(pp)[1:2],4))
         
         ## X goes across
         for(X in 0:(2^Z - 1)){
             dir.create(file.path(outdir,Z,X),showWarnings=FALSE)
-            jdx <- (w*X) + (1:w)
+            ##jdx <- (w*X) + (1:w)
             for(Y in 0:(2^Z - 1)){
-                idx <- (h*Y) + (1:h)
-                tmp <- png[idx,jdx,]
+                ##idx <- (h*Y) + (1:h)
+                ##tmp <- array(pal[pi[idx,jdx],],c(h,w,4))
+                ##tmp <- png[idx,jdx,]
+                idx <- raster::getValuesBlock(pp,row=((h*Y)+1),nrows=h,
+                                              col=((w*X)+1),ncols=w,format="matrix")
+                tmp <- array(pal[idx,],c(h,w,4))
                 png::writePNG(tmp,file.path(outdir,Z,X,paste0(Y,".png")))
             }
         }

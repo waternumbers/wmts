@@ -4,15 +4,7 @@
 \alias{genTiles}
 \title{Function to generate tiles for 0.1 degree data}
 \usage{
-genTiles(
-  rst,
-  pal,
-  outdir = ".",
-  maxZ = 3,
-  w = 445,
-  h = 223,
-  mapCRS = "EPSG:4326"
-)
+genTiles(rst, pal, outdir = ".", maxZ = 3, w = 512, h = 512, maxMemory = 5e+09)
 }
 \arguments{
 \item{rst}{a raster to generate tiles from}
@@ -27,7 +19,7 @@ genTiles(
 
 \item{h}{height of tiles in pixels}
 
-\item{mapCRS}{CRS (as a string) for the generated tiles}
+\item{maxMemory}{sets maxmemory as defined in \code{rasterOptions}}
 }
 \description{
 Function to generate tiles for 0.1 degree data
