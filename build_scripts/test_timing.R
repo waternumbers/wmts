@@ -15,4 +15,4 @@ ofn <- genTiles(rst,pal,outdir)
 })
 
 plotPalette(pal,file.path(outdir,"legend.svg"))
-unlink(outdir,recursive=TRUE))
+unlink(outdir,recursive=TRUE)

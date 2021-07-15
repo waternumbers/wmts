@@ -29,9 +29,7 @@ genTiles <- function(rst,pal,outdir=".",maxZ=3,w=445,h=223,mapCRS="EPSG:4326"){
     }
     
     ## unpack the colour palette
-    ## brk <- sort(unique(c(-Inf,Inf,brk)))
-    ## pal <- c("#00000000",crp(length(brk)))
-    ## pal <- t(col2rgb(pal,alpha=TRUE)) / 255
+    pal <- pal[order(pal$brk),] ## make sure ordered
     brk <- pal$brk
     pal <- t(grDevices::col2rgb(pal$col,alpha=TRUE)) / 255
 
@@ -55,7 +53,8 @@ genTiles <- function(rst,pal,outdir=".",maxZ=3,w=445,h=223,mapCRS="EPSG:4326"){
             jdx <- (w*X) + (1:w)
             for(Y in 0:(2^Z - 1)){
                 idx <- (h*Y) + (1:h)
-                png::writePNG(png[idx,jdx,],file.path(outdir,Z,X,paste0(Y,".png")))
+                tmp <- png[idx,jdx,]
+                png::writePNG(tmp,file.path(outdir,Z,X,paste0(Y,".png")))
             }
         }
     }
