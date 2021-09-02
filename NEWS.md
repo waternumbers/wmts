@@ -1,3 +1,9 @@
+# wnts 0.0.0.9002
+
+- Improved tile generation speed by switching to using `terra` package
+- Seperated out function for generating a single time
+
+
 # wmts 0.0.0.9000
 
 ## New Features

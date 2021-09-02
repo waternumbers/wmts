@@ -3,3 +3,4 @@
 export(genPalette)
 export(genTiles)
 export(plotPalette)
+export(singleTile)
