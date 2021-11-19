@@ -1,6 +1,6 @@
 Package: wmts
-Title: A web map tile generator for R
-Version: 0.0.0.9002
+Title: A Web Map Tile Server written in R
+Version: 0.0.0.9100
 Authors@R: 
 	   c(person(given = "Paul",
            	family = "Smith",
@@ -8,7 +8,7 @@ Authors@R:
            	email = "paul@waternumbers.co.uk",
            	comment = c(ORCID = "0000-0002-0034-3412"))
 	     )
-Description: An set of function to generate web map (slippy) tiles from spatial rasters in R.
+Description: A set of functions to generate web map (slippy) tiles, legends a to serve them from spatial rasters in R.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -18,7 +18,8 @@ Depends:
 Imports:
 	terra,
 	png,
-	svglite
+	svglite,
+	plumber
 BugReports: https://github.com/waternumbers/wmts/issues
 URL: https://waternumbers.github.io/wmts/, https://github.com/waternumbers/wmts
 Suggests:

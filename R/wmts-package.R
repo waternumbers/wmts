@@ -4,4 +4,5 @@
 #'
 #' @name wmts
 #' @docType package
+#' @importFrom plumber %>%
 NULL

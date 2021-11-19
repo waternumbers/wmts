@@ -3,4 +3,7 @@
 export(genPalette)
 export(genTiles)
 export(plotPalette)
+export(scaleImage)
+export(serveTiles)
 export(singleTile)
+importFrom(plumber,"%>%")
