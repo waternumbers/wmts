@@ -18,6 +18,7 @@ knitr::opts_chunk$set(
 ```{r, setup}
 library(wmts)
 outdir <- tempfile()
+dir.create(outdir)
 fn <- system.file("extdata","glofas.nc",package="wmts",mustWork=TRUE)
 ```
 
