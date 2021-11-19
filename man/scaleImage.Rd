@@ -7,8 +7,22 @@
 scaleImage(fcol, lv, nb = 0, w = 5, h = 10)
 }
 \arguments{
-\item{h}{}
+\item{fcol}{function to convert raster values into an hex colour scheme}
+
+\item{lv}{values to label on the legend}
+
+\item{nb}{number of values to generate between the legend values}
+
+\item{w}{width of plot}
+
+\item{h}{height of plot}
+}
+\value{
+String of class svg from svglite containing the svg image.
 }
 \description{
 Function for Generating a legend from fcol
+}
+\details{
+fcol should take a vector of n values and return an n hex colour values which should include transparency.
 }

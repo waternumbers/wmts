@@ -1,10 +1,14 @@
 #' Function for Generating a legend from fcol
 #'
-#' @param fcol
-#' @param lv
-#' @param nb
-#' @param w
-#' @param h
+#' @param fcol function to convert raster values into an hex colour scheme
+#' @param lv values to label on the legend
+#' @param nb  number of values to generate between the legend values
+#' @param w width of plot
+#' @param h height of plot
+#'
+#' @return String of class svg from svglite containing the svg image.
+#' 
+#' @details fcol should take a vector of n values and return an n hex colour values which should include transparency.
 #'
 #' @export
 scaleImage <- function(fcol,lv,nb=0,w=5,h=10){

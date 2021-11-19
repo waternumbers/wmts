@@ -29,11 +29,11 @@ serveTiles(
 
 \item{fplot}{function to plot a timeseries of data (see details)}
 
+\item{ferror}{function to process errors and return messages (see details)}
+
 \item{port}{port to serve data on}
 
 \item{clearCache}{logical, should cache be cleared if file changes}
-
-\item{ferr}{function to process errors and return messages (see details)}
 }
 \description{
 Start a serving serving tiles from a raster data set with time attribute

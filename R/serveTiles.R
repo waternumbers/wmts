@@ -6,7 +6,7 @@
 #' @param cachePath path to directory for storing cached files
 #' @param staticPath path for serving static assets from
 #' @param fplot function to plot a timeseries of data (see details)
-#' @param ferr function to process errors and return messages (see details)
+#' @param ferror function to process errors and return messages (see details)
 #' @param port port to serve data on
 #' @param clearCache logical, should cache be cleared if file changes
 #' 
@@ -26,7 +26,7 @@ serveTiles <- function(dataFile,fcol,lv=NULL,cachePath=NULL,staticPath=NULL,
     ## open data file and take snapshot
     dataFile <- normalizePath(dataFile)
     rst <- terra::rast(normalizePath(dataFile))
-    snapshot <- fileSnapshot(dirname(dataFile))
+    snapshot <- utils::fileSnapshot(dirname(dataFile))
 
     ## deal with cache
     if(flgs["cachePath"]){
@@ -39,8 +39,8 @@ serveTiles <- function(dataFile,fcol,lv=NULL,cachePath=NULL,staticPath=NULL,
     ## helper functions
     
     isChanged <- function(){
-        tmp <- fileSnapshot(dirname(dataFile))
-        if( basename(dataFile) %in% changedFiles(snapshot,tmp)$changed ){
+        tmp <- utils::fileSnapshot(dirname(dataFile))
+        if( basename(dataFile) %in% utils::changedFiles(snapshot,tmp)$changed ){
             snapshot <<- tmp
             rst <<- terra::rast(dataFile)
             if(clearCache){
@@ -67,8 +67,8 @@ serveTiles <- function(dataFile,fcol,lv=NULL,cachePath=NULL,staticPath=NULL,
         ## check if changed
         isChanged()
 
-        pnt <- vect( matrix(c(lon,lat),1,2), crs="EPSG:3857" )
-        pnt <- terra::project(pnt,crs(rst))
+        pnt <- terra::vect( matrix(c(lon,lat),1,2), crs="EPSG:3857" )
+        pnt <- terra::project(pnt,terra::crs(rst))
         
         ts <- format(terra::time(rst),"%Y-%m-%dT%H:%M:%SZ",tz="GMT")
         tv <- unlist( terra::extract(rst,pnt) )
@@ -85,8 +85,8 @@ serveTiles <- function(dataFile,fcol,lv=NULL,cachePath=NULL,staticPath=NULL,
         ## check if changed
         isChanged()
 
-        pnt <- vect( matrix(c(lon,lat),1,2), crs="EPSG:3857" )
-        pnt <- terra::project(pnt,crs(rst))
+        pnt <- terra::vect( matrix(c(lon,lat),1,2), crs="EPSG:3857" )
+        pnt <- terra::project(pnt,terra::crs(rst))
         
         ts <- terra::time(rst)
         tv <- unlist(terra::extract(rst,pnt))
@@ -108,15 +108,15 @@ serveTiles <- function(dataFile,fcol,lv=NULL,cachePath=NULL,staticPath=NULL,
         }
         
         hasFile <- FALSE
-        if(hasCache){
+        if(flgs["hasCache"]){
             fn <- file.path(cachePath,time,X,Y,paste0(Z,".png"))
             hasFile <- file.exists(fn)
         }
         if(hasFile){
             out <- readBin(fn,'raw',n = file.info(fn)$size)
         }else{
-            out <- singleTime(rst[[ts]],fcol,Z,X,Y)
-            if(hasCache){
+            out <- singleTile(rst[[ts]],fcol,Z,X,Y)
+            if(flgs["hasCache"]){
                 writeBin(out,fn)
             }
         }
@@ -126,15 +126,15 @@ serveTiles <- function(dataFile,fcol,lv=NULL,cachePath=NULL,staticPath=NULL,
     ## legend handler
     legend_handler <- function(res){
         hasFile <- FALSE
-        if(hasCache){
+        if(flgs["hasCache"]){
             fn <- file.path(cachePath,"legend.svg")
             hasFile <- file.exists(fn)
         }
         if(hasFile){
             out <- readLines(fn)
         }else{
-            out <- scalePlot(fcol,lv)
-            if(hasCache){ writeLines(out,fn) }
+            out <- scaleImage(fcol,lv)
+            if(flgs["hasCache"]){ writeLines(out,fn) }
         }
         out
     }
@@ -152,9 +152,9 @@ serveTiles <- function(dataFile,fcol,lv=NULL,cachePath=NULL,staticPath=NULL,
     ## ############################################################################
     ## routes
     ## ############################################################################
-    root <- pr()
+    root <- plumber::pr()
     root %>%
-        pr_filter("CORS", function(req,res){
+        plumber::pr_filter("CORS", function(req,res){
             res$setHeader("Access-Control-Allow-Origin", "*")
             if (req$REQUEST_METHOD == "OPTIONS") {
                 res$setHeader("Access-Control-Allow-Methods","*")
@@ -165,39 +165,39 @@ serveTiles <- function(dataFile,fcol,lv=NULL,cachePath=NULL,staticPath=NULL,
                 plumber::forward()
             }
         }) %>%
-        pr_get(path = "/times",
+        plumber::pr_get(path = "/times",
                handler = times_handler,
-               serializer = serializer_unboxed_json(),
+               serializer = plumber::serializer_unboxed_json(),
                comments = "Times for which tiles are available"
                ) %>%
-        pr_get(path = "/json/<lon:double>/<lat:double>",
+        plumber::pr_get(path = "/json/<lon:double>/<lat:double>",
                handler = json_handler,
-               serializer = serializer_unboxed_json(),
+               serializer = plumber::serializer_unboxed_json(),
                comments = "Precipitation for the given location in mm"
                ) %>%
-        pr_get(path = "/plot/<lon:double>/<lat:double>",
+        plumber::pr_get(path = "/plot/<lon:double>/<lat:double>",
                handler = plot_handler,
-               serializer = serializer_svg(width=10,height=8),
+               serializer = plumber::serializer_svg(width=10,height=8),
                comments = "Plot of precipitation for the given location"
                ) %>%
-        pr_get(path = "/tiles/<time>/<X:int>/<Y:int>/<Z:int>",
+        plumber::pr_get(path = "/tiles/<time>/<X:int>/<Y:int>/<Z:int>",
                handler = tile_handler,
-               serializer = serializer_content_type("image/png"),
+               serializer = plumber::serializer_content_type("image/png"),
                comments = "Returns tile as png image"
                ) %>%
-        pr_static("/__docs__","./__docs__/") %>%
-        pr_set_error(error_handler)
+        plumber::pr_static("/__docs__","./__docs__/") %>%
+        plumber::pr_set_error(error_handler)
 
     if(flgs["hasLegend"]){
         root %>%
-            pr_get(path = "/legend",
+            plumber::pr_get(path = "/legend",
                    handler = legend_handler,
                    comments = "Returns legend as svg"
                    )
     }
     if(flgs["hasStatic"]){
-        root %>% pr_static("/", normalizePath(staticPath) )
+        root %>% plumber::pr_static("/", normalizePath(staticPath) )
     }
 
-    root %>% pr_run(port=port)
+    root %>% plumber::pr_run(port=port)
 }
