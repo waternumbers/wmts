@@ -1,5 +1,5 @@
 ---
-title: "Using Dynamic TOPMODEL"
+title: "Using wmts"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Using Dynamic TOPMODEL}
@@ -19,6 +19,27 @@ knitr::opts_chunk$set(
 library(wmts)
 outdir <- tempfile()
 dir.create(outdir)
+```
+
+The wmts package aims to provide a Web Map Tile Service (WMTS) written purely in R.
+An overview of Web Map Tiles (aka Slippy Tiles) can be found on
+[wikipedia](https://en.wikipedia.org/wiki/Tiled_web_map). As an outline the wmts package
+broadly follows the de facto Google/OpenStreetMap format and naming
+conventions.
+
+The package contains function to 
+
+- Generating WMTS tiles compliant with Google/OpenStreetMap format and naming
+conventions from a raster data set.
+
+- Generating an image to use as the scale for the tiles.
+
+- Serve tiles generates from a raster time series as a set of tile layers with
+dynamic tile generation, tile caching and data access methods.
+
+## Tile Generation
+
+```{r, set_file}
 fn <- system.file("extdata","glofas.nc",package="wmts",mustWork=TRUE)
 ```
 
@@ -41,3 +62,27 @@ tmp <- singleTile(terra::rast(fn),fcolour,0,0,0)
 ```{r, tidy_up}
 unlink(outdir)
 ```
+
+These capabilies are demonstrated later in this vignette.
+
+## Serving Tiles and the OGC WMTS specification
+
+The Open Geospatial Consortium (OGC) provide a full
+[specification](https://www.ogc.org/standards/wmts) for a WMTS. This is
+currently not fully implimented and the following gives a comparision of the
+Tile Server within wmts (v0.0.0.9100) in comparison to the three request types
+defined in the standard. Note that wmts supports only RESTful
+requests, there is currently no support for KVP or SOAP request formats.
+
+### GetCapabilities
+
+Not supported. Manually generated responses could be served via the static
+file end point `<base_url>/`. A json response containing the times of the data
+is served on `base_url/times` format outit would be possible to serve this
+
+
+
+
+It
+is not as performant as serving static tiles or more vommeans to generate and serve Web Map Tiles (WMS)
+

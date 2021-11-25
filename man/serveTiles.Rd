@@ -7,37 +7,52 @@
 serveTiles(
   dataFile,
   fcol,
-  lv = NULL,
+  flegend = function(rst, fcol, TileMatrix) {     scaleImage(fcol,
+    seq(as.numeric(terra::global(rst[[TileMatrix]], min, na.rm = TRUE)),
+    as.numeric(terra::global(rst[[TileMatrix]], max, na.rm = TRUE)), length = 10)) },
+  fextract = function(rst, pnt, TileMatrix) {     terra::extract(rst[[TileMatrix]],
+    pnt)[TileMatrix] },
+  fplot = function(d) {     barplot(unlist(d), names.arg = names(d)) },
+  ferror = function(err) {     err$message },
   cachePath = NULL,
   staticPath = NULL,
-  fplot = function(t, v) {     plot(t, v) },
-  ferror = function(err) {     err$message },
   port = NULL,
-  clearCache = FALSE
+  clearCache = FALSE,
+  resolution = 256,
+  minZ = 0,
+  maxZ = 4
 )
 }
 \arguments{
 \item{dataFile}{file containing spatial data to be read by \code{terra::rast}}
 
-\item{fcol}{function for returning colours}
+\item{fcol}{function translating raster values to a colour (in hex format) including transparency}
 
-\item{lv}{values for drawing in legend}
+\item{flegend}{function for generating a legend as an svg string (see details)}
+
+\item{fextract}{function to extract the data for feature requests (see details)}
+
+\item{fplot}{function to plot data extracted for feature requests (see details)}
+
+\item{ferror}{function to process errors and return messages (see details)}
 
 \item{cachePath}{path to directory for storing cached files}
 
 \item{staticPath}{path for serving static assets from}
 
-\item{fplot}{function to plot a timeseries of data (see details)}
-
-\item{ferror}{function to process errors and return messages (see details)}
-
 \item{port}{port to serve data on}
 
 \item{clearCache}{logical, should cache be cleared if file changes}
+
+\item{resolution}{pixel size of tiles}
+
+\item{minZ}{minimum zoom level supported}
+
+\item{maxZ}{maximum zoom level supported}
 }
 \description{
 Start a serving serving tiles from a raster data set with time attribute
 }
 \details{
-For a decription of fcol and lv see \code{scaleImage}. fplot shoudl take as its first input a POSIXct vector and as for its second a numeric vector of the same length and return a plot. ferror creates the response body contents from the standard R err object.
+For a decription of fcol see \code{scaleImage}. flegend should return the legend image as an svg string. If set to NULL then the legend route is removed. fextract shoudl return one or more values for the given point. If a json format GetFeature request is made then this is serialised to the output. In a svg format GetFeature request is made then the output of fextract is passed to fplot. If fplot is NULL then the svg GetFeature request is not available. If fextract is NULL then no GetFeature requests are available. ferror generates the error message from the standard R err object. If set to NULL the default plumber routing is used.
 }

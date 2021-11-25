@@ -4,7 +4,7 @@
 \alias{singleTile}
 \title{Function to generate a single tile}
 \usage{
-singleTile(rst, fcol, Z, X, Y, w = 512, h = w, ...)
+singleTile(rst, fcol, Z, X, Y, w = 256, h = w, ...)
 }
 \arguments{
 \item{rst}{a SpatRaster object to generate tiles from}

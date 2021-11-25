@@ -5,5 +5,5 @@
 \alias{wmts}
 \title{wmts}
 \description{
-This package contains the a slippy map tile generator for R
+This package contains a (incomplete) Web Map Tile Service for R
 }
