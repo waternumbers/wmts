@@ -6,4 +6,5 @@
 #' @docType package
 #' @importFrom plumber %>%
 #' @importFrom graphics barplot
+#' @importFrom R6 R6Class
 NULL

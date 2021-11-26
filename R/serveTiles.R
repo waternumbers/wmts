@@ -200,9 +200,16 @@ serveTiles <- function(dataFile,fcol,
             }
         }) %>%
         plumber::pr_get(path = "/GetCapabilities.json",
-                        handler = capabilities_handler_json,
+                        handler = capabilities_handler,
                         serializer = plumber::serializer_unboxed_json(),
-                        comments = "Returns the capabilities of the server"
+                        comments = "Returns the capabilities of the server in json format"
+                        ) %>%
+        plumber::pr_get(path = "/GetCapabilities.xml",
+                        handler = capabilities_handler,
+                        serializer = plumber::serializer_content_type(
+                                                  "application/xml",
+                                                  serialize_fn = xml2::as_xml_document),
+                        comments = "Returns the capabilities of the server in xml format"
                         ) %>%
         plumber::pr_get(path = "/<TileMatrix>/<Z:int>/<X:int>/<Y:int>.png",
                         handler = tile_handler,

@@ -1,0 +1,188 @@
+        #' Return the list of available TileMatrix sets
+        tileMatrix = function(){
+            private$TileMatrix
+        },
+        #' @description Returns a single tile as a raster object
+        #'
+        #' @param TileMatrix
+        #' @param Z zoom level: 0,1,2,3,4,...
+        #' @param X row of image grid
+        #' @param Y column of image grid
+        #' @param w width in pixels
+        #' @param h height in pixels
+        #'
+        #' @return a grDevices raster object
+        #'
+        #' @details This works by defining a SpatRaster of the required area then projecting the SpatRaster layer onto this. The numeric values of the resulting raster are converted to colouts using fcolour and returned as a raster (as defined in grDevices). Plotting or saving this to an image of the correct dimensions is handled in genTiles or serveWMTS. 
+        tile = function(TileMatrix,Z,X,Y,w=256,h=w){
+            ## TODO checks on TileMatrix,Z,X, & Y
+            private$fTile(TileMatrix,Z,X,Y,w=256,h=w)
+        },
+        #' @description Returns a single tile as a raster object
+        #'
+        #' @param TileMatrix the layer of rst to generate tile from
+        #'
+        #' @return a plot containing the legend
+        legend = function(TileMatrix){
+            private$fLegend(TileMatrix)
+        },
+        #' return data for a given set of coordinates
+        #'
+        #' @param TileMatrix the layer of rst to generate tile from
+        #' @param lon Longitdue of point of interest
+        #' @param lat Latitude of the point of interest
+        #' @param plot should a plot be returned
+        #'
+        #' @details returns the output of fExtract or fPlot
+        feature = function(TileMatrix,lon,lat,plot=FALSE){
+            pnt <- terra::vect( matrix(c(lon,lat),1,2), crs="EPSG:4326" )
+            pnt <- terra::project(pnt,terra::crs(rst))
+            out <- private$fextract(pnt,TileMatrix)
+            if(plot){
+                out <- private$fPlot(out,TileMatrix)
+            }
+            out
+        },
+        #' @description Shows, or sets the clearCache value
+        #'
+        #' @param x if \code{NULL} returns the current value, if \code{NA} resets default value (FALSE), if a logical sets a new value
+        #'
+        #' @return Either the current value or invisible(self)
+        #'
+        clearCache = function(x=NULL){
+            if( is.null(x) ){ return(private$clearCache) }
+            x <- as.logical(x[1])
+            if( is.na(x) ){ x <- FALSE } ## default value
+            private$clearCache <- x
+            invisible(self)
+        },
+        #' @description Shows, or sets the cachePath value
+        #'
+        #' @param x see details
+        #' @param create logical, should path be created. Default is FALSE
+        #'
+        #' @details If \code{x=NULL} the current value is returned. If \code{x=NA} then no path is set and caching does not occur (the default setup).
+        #' If x can be interpreded as a character vector then the path is set (subject to it existing)
+        #'
+        #' @return Either the current value or invisible(self)
+        cachePath = function(x=NULL){
+            if( is.null(x) ){ return( private$cachePath ) }
+            x <- as.character(x[1])
+            if( is.na(x) ){ x <- NA } ## default value
+            else{
+                x <- file.path(x)
+                if(!dir.exists(x) & create){ dir.create(cachePath,recursive=TRUE) }
+                if( !dir.exists(x) ){ stop("path for cache does not exist") }
+            }
+            private$cachePath <- x
+            invisible(self)
+        },
+        #' @description Shows, or sets the function for extracting data
+        #'
+        #' @param f see details
+        #'
+        #' @details If \code{f=NULL} the current value is returned. If \code{f=NA} then teh default function is set. Otherwise if f is a function it set to be used for extraction.
+        #' If used the function should take three arguments: a SpatRaster, a SpatVector (containing only the point for extraction), TileMatrix containing the rst layer name.
+        #' If the wmts is served its output is directly translated to json in responding to GetFeature requests.
+        #'
+        #' @return Either the current value or invisible(self)
+        fExtract = function(f=NULL){
+            if( !is.null(f) ){ return( private$fExtract ) }
+            if( is.na(f) ){ private$fExtract <- private$fExtract_default }
+            else{
+                if(is.function(f)){ private$fExtract <- f }
+                else{ stop("The value of f is not valid") }
+            }
+            invisible(self)
+        },
+        #' @description Shows, or sets the function for plotting extracted data
+        #'
+        #' @param f see details
+        #'
+        #' @details If \code{f=NULL} the current value is returned. If \code{f=NA} then the default function is set. Otherwise if f is a function it set to be used for plotting extracted data.
+        #' If used the function should take two values: a set of data resulting from fExtract and the TileMatrix name
+        #'
+        #' If the wmts is served its output is directly translated to svg, png etc in responding to GetFeature requests.
+        #'
+        #' @return Either the current value or invisible(self)
+        fPlot = function(f=NULL){
+            if( !is.null(f) ){ return( private$fPlot ) }
+            if( is.na(f) ){ private$fPlot <- private$fPlot_default }
+            else{
+                if(is.function(f)){ private$fPlot <- f }
+                else{ stop("The value of f is not valid") }
+            }
+            invisible(self)
+        },
+        #' @description Shows, or sets the function for generating a legend
+        #'
+        #' @param f see details
+        #'
+        #' @details If \code{f=NULL} the current value is returned. If \code{f=NA} then the default function is set. Otherwise if f is a function it set to be used for plotting extracted data.
+        #' If used the function should take one value: the TileMatrix name
+        #'
+        #' If the wmts is served its output is directly translated to svg, png etc in responding to GetFeature requests.
+        #'
+        #' @return Either the current value or invisible(self)
+        fLegend = function(f=NULL){
+            if( !is.null(f) ){ return( private$fLegend ) }
+            if( is.na(f) ){ private$fExtract <- private$fLegend_default }
+            else{
+                if(is.function(f)){ private$fLegend <- f }
+                else{ stop("The value of f is not valid") }
+            }
+            invisible(self)
+        }
+
+
+        ## #################################################
+        ## Functions
+        ## #################################################
+        readRast = function(){ ## read in the SpatRaster object
+            private$rst <- terra::rast(private$dataFile)
+            if(private$use_time){
+                names(rst) <- format(terra::time(rst),"%Y-%m-%dT%H:%M:%SZ",tz="GMT")
+            }
+            nm <- names(private$rst)
+            private$tileMatrix <- nm[is.character(nm)]
+            private$snapshot <- utils::fileSnapshot(dirname(private$dataFile))
+            invisible(NULL)
+        },
+        isChanged = function(){ ## function to test if dataFile has changed
+            tmp <- utils::fileSnapshot(dirname(private$dataFile))
+            if( basename(private$dataFile) %in% utils::changedFiles(private$snapshot,tmp)$changed ){
+                private$readRast()
+                if(private$clearCache){
+                    ##TODO check this removes files in folder but not folder
+                    unlink(file.path(private$cachePath,"*"))
+                }
+                ## TODO remove when tested
+                cat("reloading")
+            }
+            invisible(NULL)
+        },
+        fExtract_default = function(pnt,TileMatrix){ terra::extract(private$rst[[TileMatrix]],pnt)[TileMatrix] }, ## default extraction function
+        fExtract = private$fExtract_default, ## function for extracting data can be over written
+        fPlot_default= function(d,TileMatrix){barplot(unlist(d),names.arg=names(d))}, ## default function for plotting  extracted data
+        fPlot = fPlot_default,  ## function for plotting extracted data - can be overwritten
+        fColour_default = function(x,TileMatrix){
+            mn <- as.numeric(terra::global(private$rst[[TileMatrix]],min,na.rm=TRUE))
+            mx <- as.numeric(terra::global(private$rst[[TileMatrix]],max,na.rm=TRUE))
+            cp <- colorRamp(c("lightblue", "blue"),alpha=TRUE)
+            cp((x-mn)/(mx-mn))
+        },
+        fColour =  private$fColour_default,
+        fLegend_default = function(TileMatrix){
+            mn <- as.numeric(terra::global(private$rst[[TileMatrix]],min,na.rm=TRUE))
+            mx <- as.numeric(terra::global(private$rst[[TileMatrix]],max,na.rm=TRUE))
+            n <- 1000; scale = (n-1)/(mx-mn)
+            lut <- private$fColour(seq(mn,max,length=n-1),TileMatrix)
+            plot(c(0,10), c(mn,mx), type='n', bty='n', xaxt='n', xlab='',
+                 yaxt='n', ylab='', main=title)
+            axis(2, ticks, las=1)
+            for (i in 1:(n-1)) {
+                y = (i-1)/scale + min
+                rect(0,y,10,y+1/scale, col=lut[i], border=NA)
+            }
+        },
+        fLegend =  private$fLegend_default

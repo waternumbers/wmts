@@ -18,4 +18,9 @@ Current performance in generating tiles is no where near that of `gdal2tiles` an
 demonstrated in the vignette the more obvious control can be useful.
 
 
+# TO DO
 
+- Fix OGC compliant routes for data and capabilities
+- Make sure errors are returned as 404 as in OGC standard
+- Decent vignette or two
+- Simple viewer
