@@ -21,10 +21,10 @@ wmts <- R6Class(
             
             invisible(self)
         },
-        #' @description Return the list of available Layer sets
-        Layer = function(){
+        #' @description Return the list of available Layers
+        layers = function(){
             private$isChanged()
-            private$tileMatrix
+            private$layers
         },
         #' @description Returns a single tile as a raster object
         #'

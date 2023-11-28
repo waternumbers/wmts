@@ -7,13 +7,21 @@
 serveTiles(
   dataFile,
   fcol,
-  flegend = function(rst, fcol, TileMatrix) {     scaleImage(fcol,
+  flegend = function(rst, fcol, TileMatrix) {
+     scaleImage(fcol,
     seq(as.numeric(terra::global(rst[[TileMatrix]], min, na.rm = TRUE)),
-    as.numeric(terra::global(rst[[TileMatrix]], max, na.rm = TRUE)), length = 10)) },
-  fextract = function(rst, pnt, TileMatrix) {     terra::extract(rst[[TileMatrix]],
-    pnt)[TileMatrix] },
-  fplot = function(d) {     barplot(unlist(d), names.arg = names(d)) },
-  ferror = function(err) {     err$message },
+    as.numeric(terra::global(rst[[TileMatrix]], max, na.rm = TRUE)), length = 10))
+ },
+  fextract = function(rst, pnt, TileMatrix) {
+     terra::extract(rst[[TileMatrix]],
+    pnt)[TileMatrix]
+ },
+  fplot = function(d) {
+     barplot(unlist(d), names.arg = names(d))
+ },
+  ferror = function(err) {
+     err$message
+ },
   cachePath = NULL,
   staticPath = NULL,
   port = NULL,

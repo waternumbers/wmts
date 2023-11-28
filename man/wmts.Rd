@@ -10,19 +10,19 @@ This package contains a (incomplete) Web Map Tile Service for R
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{wmts$new()}}
-\item \href{#method-TileMatrix}{\code{wmts$TileMatrix()}}
-\item \href{#method-tile}{\code{wmts$tile()}}
-\item \href{#method-legend}{\code{wmts$legend()}}
-\item \href{#method-feature}{\code{wmts$feature()}}
-\item \href{#method-cache}{\code{wmts$cache()}}
-\item \href{#method-overload}{\code{wmts$overload()}}
-\item \href{#method-clone}{\code{wmts$clone()}}
+\item \href{#method-wmts-new}{\code{wmts$new()}}
+\item \href{#method-wmts-TileMatrix}{\code{wmts$TileMatrix()}}
+\item \href{#method-wmts-tile}{\code{wmts$tile()}}
+\item \href{#method-wmts-legend}{\code{wmts$legend()}}
+\item \href{#method-wmts-feature}{\code{wmts$feature()}}
+\item \href{#method-wmts-cache}{\code{wmts$cache()}}
+\item \href{#method-wmts-overload}{\code{wmts$overload()}}
+\item \href{#method-wmts-clone}{\code{wmts$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-wmts-new"></a>}}
+\if{latex}{\out{\hypertarget{method-wmts-new}{}}}
 \subsection{Method \code{new()}}{
 Creates a wmts object from the file name passed to the object
 \subsection{Usage}{
@@ -43,8 +43,8 @@ invisible(self) suitable for chaining
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-TileMatrix"></a>}}
-\if{latex}{\out{\hypertarget{method-TileMatrix}{}}}
+\if{html}{\out{<a id="method-wmts-TileMatrix"></a>}}
+\if{latex}{\out{\hypertarget{method-wmts-TileMatrix}{}}}
 \subsection{Method \code{TileMatrix()}}{
 Return the list of available TileMatrix sets
 \subsection{Usage}{
@@ -53,8 +53,8 @@ Return the list of available TileMatrix sets
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-tile"></a>}}
-\if{latex}{\out{\hypertarget{method-tile}{}}}
+\if{html}{\out{<a id="method-wmts-tile"></a>}}
+\if{latex}{\out{\hypertarget{method-wmts-tile}{}}}
 \subsection{Method \code{tile()}}{
 Returns a single tile as a raster object
 \subsection{Usage}{
@@ -87,10 +87,10 @@ a grDevices raster object
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-legend"></a>}}
-\if{latex}{\out{\hypertarget{method-legend}{}}}
+\if{html}{\out{<a id="method-wmts-legend"></a>}}
+\if{latex}{\out{\hypertarget{method-wmts-legend}{}}}
 \subsection{Method \code{legend()}}{
-Returns a single tile as a raster object
+Returns a legend for a TileMatrix
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{wmts$legend(TileMatrix)}\if{html}{\out{</div>}}
 }
@@ -98,7 +98,7 @@ Returns a single tile as a raster object
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{TileMatrix}}{the layer of rst to generate tile from}
+\item{\code{TileMatrix}}{the layer of rst to generate the legend for}
 }
 \if{html}{\out{</div>}}
 }
@@ -108,8 +108,8 @@ return data for a given set of coordinates
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-feature"></a>}}
-\if{latex}{\out{\hypertarget{method-feature}{}}}
+\if{html}{\out{<a id="method-wmts-feature"></a>}}
+\if{latex}{\out{\hypertarget{method-wmts-feature}{}}}
 \subsection{Method \code{feature()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{wmts$feature(TileMatrix, lon, lat, plot = FALSE)}\if{html}{\out{</div>}}
@@ -134,8 +134,8 @@ returns the output of fExtract or fPlot
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-cache"></a>}}
-\if{latex}{\out{\hypertarget{method-cache}{}}}
+\if{html}{\out{<a id="method-wmts-cache"></a>}}
+\if{latex}{\out{\hypertarget{method-wmts-cache}{}}}
 \subsection{Method \code{cache()}}{
 Shows, or sets the cache values
 \subsection{Usage}{
@@ -162,8 +162,8 @@ Either the current value or invisible(self)
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-overload"></a>}}
-\if{latex}{\out{\hypertarget{method-overload}{}}}
+\if{html}{\out{<a id="method-wmts-overload"></a>}}
+\if{latex}{\out{\hypertarget{method-wmts-overload}{}}}
 \subsection{Method \code{overload()}}{
 Shows or Sets one over the overloadable function
 \subsection{Usage}{
@@ -206,8 +206,8 @@ Either the current value or invisible(self)
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-wmts-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-wmts-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
